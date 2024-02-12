@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "rootDir": "./src",
+    "outDir": "./build",
+    "strict": true,
+    "esModuleInterop": true,
+    "typeRoots": ["./src/types", "./node_modules/@types"],
+    "noEmitOnError": false,
+    "removeComments": true,
+    "noImplicitAny": false,
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "strictNullChecks": true,
+    "skipLibCheck": true,
+    },
+    // "include": ["src/**/*.ts"],
+    // "exclude": ["node_modules"],
+}
