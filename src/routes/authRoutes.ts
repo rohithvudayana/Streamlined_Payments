@@ -7,5 +7,5 @@ authRouter.post("/login", loginController);
 authRouter.post("/register", registerController);
 
 authRouter.use((_req, _res, _next) => {
-    // _next(new CustomError.ForbiddenError("Only POST requests are allowed"));
-  });
+    _next(CustomError.ForbiddenError("Only POST requests are allowed"));
+});

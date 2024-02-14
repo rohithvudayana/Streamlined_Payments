@@ -3,6 +3,7 @@ import { User } from "../models/user";
 import * as CustomErrors from "../errors"
 import asyncWrapper from "../helpers/asyncWrapper";
 import { hashPassword } from "../helpers/hashPassword";
+import { httpResponse } from "../helpers/createResponse";
 
 export const loginController = asyncWrapper(
     async ( _req: Request, _res: Response, _next: NextFunction ) => {
@@ -29,20 +30,21 @@ export const registerController = asyncWrapper(
             return _next(
                 CustomErrors.BadRequestError("please provide all required fields")
             )
-
+ 
         let user = await User.findOne({email : _req.body.email});
 
         if(user)
             return _next(
                 CustomErrors.BadRequestError("User already exists")
             )
-        else{
+        else{  
             try{
                 const hashedPassword = hashPassword(_req.body.password);
                 user = await User.create({..._req.body, password: hashedPassword});
+                _res.json(httpResponse(true, "user created", user))
             }catch (err: any) {
                 return _next(
-                    CustomErrors.BadRequestError("Invalid user data" + err.message)
+                    CustomErrors.BadRequestError("Invalid user data" + err.message) 
                 );
             }
         }
