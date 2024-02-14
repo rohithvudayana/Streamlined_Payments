@@ -25,11 +25,13 @@ export const loginController = asyncWrapper(
 
 export const registerController = asyncWrapper(
     async (_req: Request, _res:Response, _next:NextFunction ) => {
-        if(_req.body.name || _req.body.email || _req.body.password ) 
+        if( !_req.body.name || !_req.body.email || !_req.body.password ) 
             return _next(
                 CustomErrors.BadRequestError("please provide all required fields")
             )
-        const user = await User.findOne({email : _req.body.email});
+
+        let user = await User.findOne({email : _req.body.email});
+
         if(user)
             return _next(
                 CustomErrors.BadRequestError("User already exists")
@@ -37,6 +39,11 @@ export const registerController = asyncWrapper(
         else{
             try{
                 const hashedPassword = hashPassword(_req.body.password);
+                user = await User.create({..._req.body, password: hashedPassword});
+            }catch (err: any) {
+                return _next(
+                    CustomErrors.BadRequestError("Invalid user data" + err.message)
+                );
             }
         }
     }

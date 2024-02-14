@@ -2,18 +2,24 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { connectDB } from "./database/database";
+import { BASEURL } from "./constants";
+import { authRouter } from "./routes/authRoutes";
 dotenv.config();
 
-const app = express(); 
+// Express app 
+const app = express();  
 
-app.use(express.json());
+// Middelware 
+app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
+// Routes 
+app.use(`${BASEURL}/auth`, authRouter);
+
+
 const port = process.env.PORT || 3000;
 try{ 
-    console.log(process.env.PORT);
-    
     if(!process.env.CONNECTIONSTR)
         throw new Error("no connection string found in .env file");
     connectDB(process.env.CONNECTIONSTR); 
