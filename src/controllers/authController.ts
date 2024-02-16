@@ -2,8 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import { User } from "../models/user";
 import * as CustomErrors from "../errors"
 import asyncWrapper from "../helpers/asyncWrapper";
-import { hashPassword } from "../helpers/hashPassword";
+import { hashPassword, hashCompare } from "../helpers/hashPassword";
 import { httpResponse } from "../helpers/createResponse";
+import { genToken, genRefreshToken } from "../helpers/jwt";
+import jwt from 'jsonwebtoken';
+import { StatusCodes } from "http-status-codes";
+
 
 export const loginController = asyncWrapper(
     async ( _req: Request, _res: Response, _next: NextFunction ) => {
@@ -26,7 +30,7 @@ export const loginController = asyncWrapper(
 
 export const registerController = asyncWrapper(
     async (_req: Request, _res:Response, _next:NextFunction ) => {
-        if( !_req.body.name || !_req.body.email || !_req.body.password ) 
+        if( !_req.body.username || !_req.body.email || !_req.body.password ) 
             return _next(
                 CustomErrors.BadRequestError("please provide all required fields")
             )
@@ -47,6 +51,8 @@ export const registerController = asyncWrapper(
                     CustomErrors.BadRequestError("Invalid user data" + err.message) 
                 );
             }
+            const accessToken = genToken(user);
+            _res.status(StatusCodes.CREATED).json(httpResponse(true, "User created successfuly",accessToken));
         }
     }
 )

@@ -7,6 +7,8 @@ import { authRouter } from "./routes/authRoutes";
 import { httpResponse } from "./helpers/createResponse";
 import { routeNotFound } from "./middleware/routeNotFound";
 import { errorHandler } from "./middleware/errorHandler";
+import jwt from 'jsonwebtoken';
+
 dotenv.config();
 
 // Express app 
