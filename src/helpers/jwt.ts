@@ -3,35 +3,33 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export interface SerializedUser {
-    userId : string,
-    userName: string,
-    isAdmin: boolean
-} 
-type UserDocument = any;
-
-// export const SerializeUser = (user : UserDocument ) : SerializedUser => {
-//     return ({ userId : user.user._id, userName: user.email, isAdmin: user.isAdmin});
-// }
-
-export const SerializeUser = (user: UserDocument): SerializedUser => {
-    return { userId: user._id.toString(), userName: user.username, isAdmin: user.isAdmin };
+    userId: string;
+    userName: string;
+    isAdmin: boolean;
 }
 
+type UserDocument = any;
+
+export const SerializeUser = (user: UserDocument): SerializedUser => {
+    // Check if user and user._id are defined before accessing properties
+    const userId = user && user._id ? user._id : '';
+    return { userId, userName: user.email, isAdmin: user.isAdmin };
+};
 
 export const genToken = (user: UserDocument | SerializedUser) => {
+    // Check if user is already serialized
     const userToken = !user.hasOwnProperty("userId") ? SerializeUser(user as UserDocument) : {
         userId: (user as SerializedUser).userId,
         userName: (user as SerializedUser).userName,
-        // isAdmin: (user as SerializedUser).isAdmin,
+        isAdmin: (user as SerializedUser).isAdmin,
     };
     if (!process.env.JWT_ACCESS_SECRET) {
         console.log("JWT_ACCESS_SECRET not found");
         throw new Error("JWT ACCESS SECRET not found");
     }
-    return jwt.sign(userToken, process.env.JWT_ACCESS_SECRET, 
-        // { expiresIn: "1hr" }
-        );
+    return jwt.sign(userToken, process.env.JWT_ACCESS_SECRET, { expiresIn: "1hr" });
 };
+
 
 
 export const genRefreshToken = (user: UserDocument | SerializedUser) => {
@@ -46,9 +44,7 @@ export const genRefreshToken = (user: UserDocument | SerializedUser) => {
       console.log("JWT_REFRESH_SECRET not found");
       throw new Error("JWT_REFRESH_SECRET not found");
     }
-    return jwt.sign(userToken, process.env.JWT_REFRESH_SECRET, {
-      // expiresIn: "7d", 
-    });
+    return jwt.sign(userToken, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d"});
   };
 
 export const verifyToken = (token: string) : SerializedUser => {
@@ -63,10 +59,3 @@ export const verifyToken = (token: string) : SerializedUser => {
         throw new Error("Invalid access token");
     }
   }
-
-  export default {
-    SerializeUser,
-    genToken,
-    genRefreshToken,
-    verifyToken
-  };

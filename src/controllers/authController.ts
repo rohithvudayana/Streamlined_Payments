@@ -23,36 +23,44 @@ export const loginController = asyncWrapper(
             )
         if(!user.password)
             return _next(
-                CustomErrors.InternalServerError("User password not found in the databse")
-            )
+                CustomErrors.InternalServerError("User password not found in the database")
+            );
+
+        if(hashCompare(password, user.password)){
+            const accessToken = genToken(user);
+            _res.status(StatusCodes.OK).json(httpResponse(true, "User logged in successfully", accessToken));
+        }else{
+            return _next(CustomErrors.UnauthorizedError("Invalid password"));
+        }
     }
 )
 
 export const registerController = asyncWrapper(
     async (_req: Request, _res:Response, _next:NextFunction ) => {
-        if( !_req.body.username || !_req.body.email || !_req.body.password ) 
+        if( !_req.body.username || !_req.body.email || !_req.body.password )
             return _next(
                 CustomErrors.BadRequestError("please provide all required fields")
             )
- 
+
         let user = await User.findOne({email : _req.body.email});
 
         if(user)
             return _next(
                 CustomErrors.BadRequestError("User already exists")
             )
-        else{  
+        else{
             try{
                 const hashedPassword = hashPassword(_req.body.password);
                 user = await User.create({..._req.body, password: hashedPassword});
-                _res.json(httpResponse(true, "user created", user))
+                // _res.json(httpResponse(true, "user created", user))
             }catch (err: any) {
                 return _next(
-                    CustomErrors.BadRequestError("Invalid user data" + err.message) 
+                    CustomErrors.BadRequestError("Invalid user data" + err.message)
                 );
             }
+
             const accessToken = genToken(user);
-            _res.status(StatusCodes.CREATED).json(httpResponse(true, "User created successfuly",accessToken));
+            _res.status(StatusCodes.CREATED).json(httpResponse(true, "User created Successfully", accessToken));
         }
     }
 )
