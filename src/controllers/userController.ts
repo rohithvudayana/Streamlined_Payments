@@ -7,7 +7,7 @@ import asyncWrapper from "../helpers/asyncWrapper";
 
 const getUserInfo = asyncWrapper(
     async(_req: Request, _res: Response, _next: NextFunction) => {
-        const user = await User.aggregate([
+        const user = await User.aggregate([ 
 
         ])
     }
