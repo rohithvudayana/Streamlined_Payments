@@ -10,9 +10,7 @@ import { errorHandler } from "./middleware/errorHandler";
 
 dotenv.config();
 
-
 const app = express();
-
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -20,7 +18,7 @@ app.use(cors());
 
 
 app.use(`${BASEURL}/auth`, authRouter);
-
+app.use(`${BASEURL}/users`, )
 app.use("/ok", (_req, _res) => {
     _res.status(200).send(httpResponse(true, "OK", {}))
 })

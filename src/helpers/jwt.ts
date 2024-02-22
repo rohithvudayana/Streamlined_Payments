@@ -30,8 +30,6 @@ export const genToken = (user: UserDocument | SerializedUser) => {
     return jwt.sign(userToken, process.env.JWT_ACCESS_SECRET, { expiresIn: "1hr" });
 };
 
-
-
 export const genRefreshToken = (user: UserDocument | SerializedUser) => {
     const userToken = !user.hasOwnProperty("userId")
       ? SerializeUser(user as UserDocument)

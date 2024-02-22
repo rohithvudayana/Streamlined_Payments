@@ -4,7 +4,7 @@ import * as CustomErrors from "../errors"
 import asyncWrapper from "../helpers/asyncWrapper";
 import { hashPassword, hashCompare } from "../helpers/hashPassword";
 import { httpResponse } from "../helpers/createResponse";
-import { genToken, genRefreshToken } from "../helpers/jwt";
+import {  genToken, genRefreshToken } from "../helpers/jwt";
 import jwt from 'jsonwebtoken';
 import { StatusCodes } from "http-status-codes";
 
