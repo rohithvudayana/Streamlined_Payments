@@ -8,5 +8,12 @@ export const authenticateToken = async (_req: Request, _res: Response, _next: Ne
         if(token == null){
             return _next(CustomError.ForbiddenError("No token Provided"));
         }
-        
+        try{
+            const decode = jwtUtils.verifyToken(token);
+            (<any>_req).user = decode;
+            (<any>_req).access_token = token;
+            _next();
+        }catch(err: any){
+            _next(CustomError.UnauthorizedError(err.message));
+        }
     }

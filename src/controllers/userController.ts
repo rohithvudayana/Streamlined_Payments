@@ -6,7 +6,7 @@ import { Request, Response, NextFunction } from "express";
 import asyncWrapper from "../helpers/asyncWrapper";
 import * as CustomErrors from "../errors"
 import { hashCompare } from "../helpers/hashPassword";
-
+import { hashPassword } from "../helpers/hashPassword";
 export const getUserInfo = asyncWrapper(
     async(_req: Request, _res: Response, _next: NextFunction) => {
         const user = await User.aggregate([
@@ -31,12 +31,11 @@ export const getUserInfo = asyncWrapper(
     }
 )
 
-
 export const patchUser = asyncWrapper(
     async(_req: Request, _res: Response, _next: NextFunction) => {
         const user = await User.findOneAndUpdate(
             {
-                _id: (<any>_req).user.user_Id,
+                _id: (_req as any).user.userId,
             },
             [
                 {
@@ -62,16 +61,18 @@ export const patchUser = asyncWrapper(
     }
 )
 
-export const deleteUser = asyncWrapper(
-    async (_req: Request, _res: Response, _next: NextFunction) => {
-        const user = await User.deleteOne({ _id : (<any>_req).user.userId});
-        if(user.deletedCount !== 1){
-            _next(CustomErrors.NotFoundError("User not Found"));
-        }else{
-            _res.status(StatusCodes.NO_CONTENT).json(httpResponse(true, "User deleted", {}));
+export const deleteUser = async (_req: Request, _res: Response, _next: NextFunction) => {
+    try {
+        const user = await User.deleteOne({ _id: (_req as any).user.userId });
+        if (user.deletedCount !== 1) {
+            _next(CustomErrors.NotFoundError("User not found"));
+        } else {
+            _res.status(StatusCodes.NO_CONTENT).json({ success: true, message: "User deleted" });
         }
+    } catch (error) {
+        _next(error); // Forward any caught error to the error handling middleware
     }
-)
+}
 
 export const resetPassword = asyncWrapper(
     async(_req: Request, _res: Response, _next: NextFunction) => {
@@ -84,7 +85,8 @@ export const resetPassword = asyncWrapper(
         if(!hashCompare(_req.body.oldPassword, user.password ?? "")){
             return _next(CustomErrors.BadRequestError("Wrong Password"));
         }
-        user.password = _req.body.newPassword;
+        const hashedPassword = hashPassword(_req.body.newPassword);
+        user.password = hashedPassword;
         await user.save();
         _res.status(StatusCodes.OK).json(httpResponse(true, "Password updated", {}));
     }

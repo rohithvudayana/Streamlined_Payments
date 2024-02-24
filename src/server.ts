@@ -7,6 +7,8 @@ import { authRouter } from "./routes/authRoutes";
 import { httpResponse } from "./helpers/createResponse";
 import { routeNotFound } from "./middleware/routeNotFound";
 import { errorHandler } from "./middleware/errorHandler";
+import { userRouter } from "./routes/userRoutes";
+
 
 dotenv.config();
 
@@ -16,9 +18,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-
 app.use(`${BASEURL}/auth`, authRouter);
-app.use(`${BASEURL}/users`, )
+app.use(`${BASEURL}/users`, userRouter)
+
 app.use("/ok", (_req, _res) => {
     _res.status(200).send(httpResponse(true, "OK", {}))
 })
