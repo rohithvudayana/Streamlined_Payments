@@ -8,7 +8,10 @@ import { httpResponse } from "./helpers/createResponse";
 import { routeNotFound } from "./middleware/routeNotFound";
 import { errorHandler } from "./middleware/errorHandler";
 import { userRouter } from "./routes/userRoutes";
-
+import {productRouter} from "./routes/productRoutes"
+import { serviceRouter } from "./routes/serviceRoutes";
+import { grant_accessRouter } from "./routes/grant_access_Routes";
+import { cartRouter } from "./routes/cartRoutes";
 
 dotenv.config();
 
@@ -19,7 +22,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use(`${BASEURL}/auth`, authRouter);
-app.use(`${BASEURL}/users`, userRouter)
+app.use(`${BASEURL}/users`, userRouter, productRouter, cartRouter);
+app.use(`${BASEURL}/admin`, productRouter, serviceRouter, grant_accessRouter);
 
 app.use("/ok", (_req, _res) => {
     _res.status(200).send(httpResponse(true, "OK", {}))
@@ -30,9 +34,9 @@ app.use(errorHandler);
 
 const port = process.env.PORT || 9000;
 try{
-    if(!process.env.CONNECTIONSTR)
+    if(!process.env.CONNECTION)
         throw new Error("no connection string found in .env file");
-    connectDB(process.env.CONNECTIONSTR);
+    connectDB(process.env.CONNECTION);
 
     app.listen(port, () => {
         console.log(`server listening on : http://localhost:${port}/`);
