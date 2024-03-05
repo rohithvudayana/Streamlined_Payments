@@ -27,7 +27,7 @@ export const genToken = (user: UserDocument | SerializedUser) => {
         console.log("JWT_ACCESS_SECRET not found");
         throw new Error("JWT ACCESS SECRET not found");
     }
-    return jwt.sign(userToken, process.env.JWT_ACCESS_SECRET, { expiresIn: "1hr" });
+    return jwt.sign(userToken, process.env.JWT_ACCESS_SECRET);
 };
 
 export const genRefreshToken = (user: UserDocument | SerializedUser) => {

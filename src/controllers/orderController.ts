@@ -1,10 +1,12 @@
 import { Request, Response, NextFunction } from "express";
+import { asyncWrapper } from "../helpers";
 import { StatusCodes } from "http-status-codes";
 import * as CustomError from "../errors";
-import { asyncWrapper, httpResponse } from "../helpers";
+import { httpResponse } from "../helpers";
 import { User } from "../models/user";
-import { Product } from "../models/product";
+import { order } from "../models/order";
 import { Service } from "../models/service";
+import { Product } from "../models/product";
 
 const calculateTax  = (price: number, taxRate: number): number => {
     return (price * taxRate) / 100;
@@ -34,16 +36,14 @@ const calculateTaxRate = (cartType: string | undefined | null, price?: number): 
 };
 
 
-export const billController = asyncWrapper(
+export const orderController = asyncWrapper(
     async(_req: Request, _res: Response, _next: NextFunction) => {
         try{
             const user = await User.findById((<any>_req).user.userId);
             if(!user){
                 return _next(CustomError.BadRequestError("User not found"));
             }
-            if(user.cart.length === 0){
-                return _next(CustomError.NotFoundError("cart is empty"));
-            }
+
             const populateItems = async () => {
                 try {
                     const populateProduct = Product.find({ _id: { $in: user.cart.map(item => item.item) } });
@@ -57,8 +57,6 @@ export const billController = asyncWrapper(
                     for (const service of services) {
                       itemMap[service._id.toString()] = service;
                     }
-                    console.log(itemMap);
-                    
                     const populatedCart = user.cart.map(item => {
                         const populatedItem = item.item ? itemMap[item.item.toString()] : undefined;
                         const taxRate = calculateTaxRate(item.cartType, populatedItem?.price);
@@ -70,7 +68,6 @@ export const billController = asyncWrapper(
                             tax: populatedItem ? calculateTax(populatedItem.price, taxRate) : 0
                         }
                     });
-                    // console.log(populatedCart);
                     return populatedCart;
                 } catch (error) {
                   console.error("Error fetching items:", error);

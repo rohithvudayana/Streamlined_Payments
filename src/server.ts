@@ -12,6 +12,7 @@ import {productRouter} from "./routes/productRoutes"
 import { serviceRouter } from "./routes/serviceRoutes";
 import { grant_accessRouter } from "./routes/grant_access_Routes";
 import { cartRouter } from "./routes/cartRoutes";
+import { billRouter } from "./routes/billRoutes";
 
 dotenv.config();
 
@@ -22,7 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use(`${BASEURL}/auth`, authRouter);
-app.use(`${BASEURL}/users`, userRouter, productRouter, cartRouter);
+app.use(`${BASEURL}/users`, userRouter, productRouter, serviceRouter, cartRouter, billRouter);
 app.use(`${BASEURL}/admin`, productRouter, serviceRouter, grant_accessRouter);
 
 app.use("/ok", (_req, _res) => {

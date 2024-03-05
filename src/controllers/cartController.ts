@@ -14,7 +14,6 @@ export const addCart = asyncWrapper(
           return _next(CustomError.NotFoundError("User not found"));
         }
         const existingItem = user.cart.find((cartItem) => cartItem.item?.toString() === itemId && cartItem.cartType === cartType);
-        console.log(existingItem);
         if (existingItem) {
           existingItem.quantity += _req.body.quantity || 1;
             // return _next(CustomError.BadRequestError("Item already in cart"));
