@@ -57,8 +57,7 @@ export const billController = asyncWrapper(
                     for (const service of services) {
                       itemMap[service._id.toString()] = service;
                     }
-                    console.log(itemMap);
-                    
+                    // console.log(itemMap);
                     const populatedCart = user.cart.map(item => {
                         const populatedItem = item.item ? itemMap[item.item.toString()] : undefined;
                         const taxRate = calculateTaxRate(item.cartType, populatedItem?.price);

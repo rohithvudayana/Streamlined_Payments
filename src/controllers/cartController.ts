@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { StatusCodes } from "http-status-codes";
 import { Request, Response, NextFunction } from "express";
 import * as CustomError from "../errors";

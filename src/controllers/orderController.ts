@@ -4,7 +4,7 @@ import { StatusCodes } from "http-status-codes";
 import * as CustomError from "../errors";
 import { httpResponse } from "../helpers";
 import { User } from "../models/user";
-import { order } from "../models/order";
+import { Order } from "../models/order";
 import { Service } from "../models/service";
 import { Product } from "../models/product";
 
@@ -57,7 +57,7 @@ export const orderController = asyncWrapper(
                     for (const service of services) {
                       itemMap[service._id.toString()] = service;
                     }
-                    const populatedCart = user.cart.map(item => {
+                    const orderDetails = user.cart.map(item => {
                         const populatedItem = item.item ? itemMap[item.item.toString()] : undefined;
                         const taxRate = calculateTaxRate(item.cartType, populatedItem?.price);
                         return{
@@ -68,17 +68,40 @@ export const orderController = asyncWrapper(
                             tax: populatedItem ? calculateTax(populatedItem.price, taxRate) : 0
                         }
                     });
-                    return populatedCart;
+                    return orderDetails;
                 } catch (error) {
                   console.error("Error fetching items:", error);
                 }
               };
 
               const finalCart = await populateItems();
-              const total = calculateTotal(finalCart);
-              _res.status(StatusCodes.OK).json(httpResponse(true, "Bill calculated Successfully", {items: finalCart, total}));
+              const totalAmount = calculateTotal(finalCart);
+              const order = new Order({
+                user: user._id,
+                items: finalCart,
+                totalAmount,
+              })
+
+              if(finalCart?.length === 0){
+                return _next(CustomError.BadRequestError("your cart is empty ! add items first"));
+              }
+              await order.save();
+              (user.cart as any) = []; // Not recommended for production code
+              await user.save();
+              _res.status(StatusCodes.OK).json(httpResponse(true, " Ordered Successfully", {order}));
         }catch(error){
-            _res.status(500).json({error: "Error while retrieving total bill"});
+            _res.status(500).json({error: "Error while creating an order"});
         }
+    }
+  )
+
+  export const getOrders = asyncWrapper (
+    async(_req: Request, _res: Response, _next: NextFunction) => {
+      try{
+        const orders =await Order.find();
+        _res.status(StatusCodes.OK).json(httpResponse(true, "Orders Retrieved successfully", {orders}));
+      }catch(error){
+        _next(CustomError.InternalServerError("Error while Retrieving orders"));
+      }
     }
   )
